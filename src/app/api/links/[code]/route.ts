@@ -1,7 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ code: string }> }) {
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ code: string }> }
+) {
   const { code } = await params;
 
   const link = await prisma.link.findUnique({ where: { code } });
@@ -13,16 +16,19 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ cod
   return NextResponse.json(link);
 }
 
-export async function DELETE(_req: Request, { params }: any) {
-  const { code } = params;
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ code: string }> }
+) {
+  const { code } = await params;
 
-  const link = await prisma.link.findUnique({ where: { code } });
+  const existing = await prisma.link.findUnique({ where: { code } });
 
-  if (!link) {
+  if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   await prisma.link.delete({ where: { code } });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ message: "Deleted" });
 }
