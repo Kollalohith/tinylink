@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET(_req: Request, context: { params: { code: string } }) {
-  const { code } = context.params;
+export async function GET(
+  _req: Request,
+  context: { params: { code: string } }
+) {
+  const code = context.params.code;
 
   if (!code) {
     return NextResponse.json({ error: "Code missing" }, { status: 400 });
   }
 
   try {
-    // Find the link
     const link = await prisma.link.findUnique({
       where: { code },
     });
@@ -18,7 +20,6 @@ export async function GET(_req: Request, context: { params: { code: string } }) 
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    // Update click stats
     await prisma.link.update({
       where: { code },
       data: {
@@ -27,10 +28,9 @@ export async function GET(_req: Request, context: { params: { code: string } }) 
       },
     });
 
-    // Redirect user
     return NextResponse.redirect(link.targetUrl, 302);
-  } catch (err) {
-    console.error("REDIRECT ERROR:", err);
+  } catch (error) {
+    console.error("REDIRECT ERROR:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
