@@ -10,26 +10,31 @@ interface Link {
   lastClickedAt: string | null;
 }
 
-export default function StatsPage({ params }: any) {
-  const { code } = params;
-
+export default function StatsPage({ params }: { params: Promise<{ code: string }> }) {
   const [link, setLink] = useState<Link | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Fetch stats
   const loadStats = async () => {
-    const res = await fetch(`/api/links/${code}`);
+    try {
+      const { code } = await params;
 
-    if (!res.ok) {
-      setErrorMsg("Code not found.");
+      const res = await fetch(`/api/links/${code}`);
+
+      if (!res.ok) {
+        setErrorMsg("Short code not found.");
+        setLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+      setLink(data);
       setLoading(false);
-      return;
+    } catch (err) {
+      console.error("Stats error:", err);
+      setErrorMsg("Failed to load stats.");
+      setLoading(false);
     }
-
-    const data = await res.json();
-    setLink(data);
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -38,16 +43,14 @@ export default function StatsPage({ params }: any) {
 
   if (loading) {
     return (
-      <div className="p-6 text-center text-gray-500">
-        Loading stats...
-      </div>
+      <div className="p-6 text-center text-gray-500">Loading stats...</div>
     );
   }
 
   if (errorMsg || !link) {
     return (
       <div className="p-6 text-center text-red-600">
-        {errorMsg || "Code not found"}
+        {errorMsg || "Short link not found"}
       </div>
     );
   }
