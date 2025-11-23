@@ -5,32 +5,38 @@ export async function GET(
   _req: Request,
   context: { params: { code: string } }
 ) {
-  const code = context.params.code;
+  const { code } = context.params;
 
   if (!code) {
     return NextResponse.json({ error: "Code missing" }, { status: 400 });
   }
 
-  try {
-    const link = await prisma.link.findUnique({
-      where: { code },
-    });
+  const link = await prisma.link.findUnique({ where: { code } });
 
-    if (!link) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
-    }
-
-    await prisma.link.update({
-      where: { code },
-      data: {
-        totalClicks: { increment: 1 },
-        lastClickedAt: new Date(),
-      },
-    });
-
-    return NextResponse.redirect(link.targetUrl, 302);
-  } catch (error) {
-    console.error("REDIRECT ERROR:", error);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  if (!link) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+
+  return NextResponse.json(link);
+}
+
+export async function DELETE(
+  _req: Request,
+  context: { params: { code: string } }
+) {
+  const { code } = context.params;
+
+  if (!code) {
+    return NextResponse.json({ error: "Code missing" }, { status: 400 });
+  }
+
+  const link = await prisma.link.findUnique({ where: { code } });
+
+  if (!link) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  await prisma.link.delete({ where: { code } });
+
+  return NextResponse.json({ message: "Deleted" });
 }

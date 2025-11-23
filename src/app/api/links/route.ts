@@ -21,7 +21,6 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const { longUrl, code: customCode } = await req.json();
 
-  // Validate URL
   if (!longUrl || !validateUrl(longUrl)) {
     return NextResponse.json(
       { error: "Invalid URL. Must start with http:// or https://" },
@@ -31,7 +30,6 @@ export async function POST(req: NextRequest) {
 
   let code = customCode?.trim();
 
-  // If custom code provided
   if (code) {
     if (!validateCode(code)) {
       return NextResponse.json(
@@ -40,7 +38,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check duplicate
     const existing = await prisma.link.findUnique({ where: { code } });
     if (existing) {
       return NextResponse.json(
@@ -49,7 +46,7 @@ export async function POST(req: NextRequest) {
       );
     }
   } else {
-    // Generate a random code if not provided
+    
     let unique = false;
     while (!unique) {
       code = generateRandomCode(6);
@@ -58,7 +55,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-// Create link
+
 const link = await prisma.link.create({
   data: {
     code,
@@ -66,7 +63,7 @@ const link = await prisma.link.create({
   },
 });
 
-// Build full short URL using BASE_URL env variable
+
 const shortUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${code}`;
 
 return NextResponse.json(

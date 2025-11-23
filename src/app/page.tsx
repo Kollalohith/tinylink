@@ -21,7 +21,7 @@ export default function DashboardPage() {
 
   const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-  // Load links
+
   const loadLinks = async () => {
     setLoading(true);
     const res = await fetch("/api/links");
@@ -34,7 +34,6 @@ export default function DashboardPage() {
     loadLinks();
   }, []);
 
-  // Add link
   const addLink = async () => {
     if (!longUrl.trim()) {
       setErrorMsg("URL cannot be empty.");
@@ -63,13 +62,13 @@ export default function DashboardPage() {
     loadLinks();
   };
 
-  // Delete link
+
   const deleteLink = async (code: string) => {
     await fetch(`/api/links/${code}`, { method: "DELETE" });
     loadLinks();
   };
 
-  // Copy short URL
+
   const copyToClipboard = async (text: string) => {
     await navigator.clipboard.writeText(text);
     alert("Short link copied!");
@@ -83,7 +82,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
-      {/* Header */}
       <header className="mb-10">
         <h1 className="text-4xl font-bold text-gray-900">TinyLink Dashboard</h1>
         <p className="text-gray-600 mt-2">
@@ -91,7 +89,6 @@ export default function DashboardPage() {
         </p>
       </header>
 
-      {/* Create Link Card */}
       <div className="max-w-3xl bg-white shadow-md p-6 rounded-2xl mb-10">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">
           Create Short Link
@@ -130,7 +127,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Search Box */}
       <div className="max-w-3xl mb-6">
         <input
           type="text"
@@ -141,7 +137,6 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Links Table */}
       <div className="bg-white shadow-md rounded-2xl overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-100 text-gray-700">
